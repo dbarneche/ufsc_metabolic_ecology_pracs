@@ -68,10 +68,24 @@ exp(1/k * (-Ea/303 + Ea/294))
 set.seed(1)
 av_survey  <-  data.frame(year = rep(1:5, each = 12), month = rep(1:12, 5))
 av_survey$average_size_cm  <-  abs(rnorm(nrow(av_survey), mean = 5 + 1.5 * av_survey$year, sd = 0.5))
-av_survey$density = 10 * av_survey$average_size_cm^-alpha + rnorm(nrow(av_survey), 1, 0.1)
+av_survey$density  <-  10 * av_survey$average_size_cm^-alpha + rnorm(nrow(av_survey), 0.01, 0.05)
 
 av_survey$pop_resp  <-  av_survey$density * b0 * av_survey$average_size_cm^alpha * exp(Ea / (k * 293.15))
-plot(av_survey$pop_resp)
-plot(density ~ average_size_cm, data = av_survey)
+plot(av_survey$density)
+plot(density ~ average_size_cm, data = av_survey, log = 'xy')
+lm(log(density) ~ log(average_size_cm), data = av_survey)
 plot(pop_resp ~ average_size_cm, data = av_survey)
 
+av_survey$pop_resp2  <-  av_survey$density * b0 * av_survey$average_size_cm^(2/3) * exp(Ea / (k * 293.15))
+
+plot(av_survey$pop_resp2 / av_survey$pop_resp)
+
+
+set.seed(1)
+
+av_survey$increasing_temp_celsius  <- rep(24 + sin(pi * seq(-1, 1, length.out = 12)) * 2, 5) + rep(1:5, each = 12) * 0.5 + rnorm(12 * 5, 0.1, sd = 0.05)
+plot(av_survey$increasing_temp_celsius)
+
+av_survey$pop_resp3  <-  av_survey$density * b0 * av_survey$average_size_cm^alpha * exp(Ea / (k * (av_survey$increasing_temp_celsius + 273.15)))
+
+plot(av_survey$pop_resp3 / av_survey$pop_resp)

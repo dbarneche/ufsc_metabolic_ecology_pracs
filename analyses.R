@@ -46,8 +46,7 @@ summary(complete_model)
 # notando que os parâmetros ln(c), alpha e Ea correspondem respectivamente ao intercepto, slope do lnMass_g e slope da temperatura inversa.
 
 parametros  <-  coef(complete_model)
-
-parametros[2]
+b0     <-  exp(parametros['(Intercept)'])
 alpha  <-  parametros['lnMass_g'] # alpha
 Ea     <-  parametros['inverse_temperature'] # Ea
 
@@ -63,3 +62,16 @@ plot(respiration_rate_gC_per_d ~ lnMass_g, data = resp, log = 'y')
 plot(temp_cor_resp_rate_gC_per_d_g_alpha ~ lnMass_g, data = resp, log = 'y')
 10^0.75
 exp(1/k * (-Ea/303 + Ea/294))
+
+
+
+set.seed(1)
+av_survey  <-  data.frame(year = rep(1:5, each = 12), month = rep(1:12, 5))
+av_survey$average_size_cm  <-  abs(rnorm(nrow(av_survey), mean = 5 + 1.5 * av_survey$year, sd = 0.5))
+av_survey$density = 10 * av_survey$average_size_cm^-alpha + rnorm(nrow(av_survey), 1, 0.1)
+
+av_survey$pop_resp  <-  av_survey$density * b0 * av_survey$average_size_cm^alpha * exp(Ea / (k * 293.15))
+plot(av_survey$pop_resp)
+plot(density ~ average_size_cm, data = av_survey)
+plot(pop_resp ~ average_size_cm, data = av_survey)
+
